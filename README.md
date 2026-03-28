@@ -1,5 +1,5 @@
 # MNRuntimeLib
-
+![Stable](https://img.shields.io/badge/Status-Stable-0d47a1?style=flat&labelColor=2E72E7)
 
 一个面向MarginNote插件开发的基础库仓库，提供MarginNote对象封装、运行时接入能力以及一组可复用的通用工具。
 
