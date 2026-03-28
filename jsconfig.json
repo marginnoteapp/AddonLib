@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "lib": ["es2015"]
+  },
+  "include": ["index.d.ts","utils.js","mnutils.js","mnnote.js"]
+}
