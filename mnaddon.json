@@ -1,8 +1,8 @@
 {
-    "addonid": "marginnote.extension.lib",
+    "addonid": "marginnote.extension.addonLib",
     "author": "Feliks",
-    "title": "LibMN",
-    "version": "0.2.2.alpha0228",
+    "title": "Addon Lib",
+    "version": "0.0.1.alpha0329",
     "marginnote_version_min": "3.7.11",
     "cert_key": ""
 }

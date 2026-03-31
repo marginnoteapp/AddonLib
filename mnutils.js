@@ -57,7 +57,7 @@ class Mustache {
 class Locale{
   static init(mainPath){
   try {
-    this.mainPath = Runtime.assets.resolve("")
+    this.mainPath = mainPath
     this.current = NSLocale.currentLocale()
     this.isZH = this.current.localeIdentifier().startsWith("zh")
     this.isEN = this.current.localeIdentifier().startsWith("en")
@@ -579,6 +579,7 @@ class MNUtil {
     if (this.initialized) {
       return
     }
+    console.log("init MNUtil")
     this.dotBase64 = this.getFile(Runtime.assets.resolve("assets/dot.png")).base64Encoding()
     this.dotBytes = DataConverter.base64ToUint8Array(this.dotBase64)
     this.mainPath = Runtime.assets.resolve("")
@@ -596,6 +597,7 @@ class MNUtil {
     if (extensionPath) {
       let dataPath = extensionPath+"/data"
       if (this.isfileExists(dataPath)) {
+        this.dataFolder = dataPath
         return
       }
       this.createFolderDev(dataPath)
@@ -796,6 +798,66 @@ static decodeAndDecompress(base64,type = "pako") {
 
 static atob(str) {
   return DataConverter.atob(str)
+}
+/**
+ * 根据指定的 scheme、host、path、query 和 fragment 生成一个完整的 URL Scheme 字符串。
+ * URL Scheme 完整格式：scheme://host/path?query#fragment
+ *
+ * @param {string} scheme - URL scheme，例如 'myapp'。必须提供。
+ * @param {string|undefined} [host] - host 部分，例如 'user_profile'。
+ * @param {string|string[]|undefined} [path] - path 部分，例如 'view/123'。
+ * @param {Object<string, string|number|boolean|object>|undefined} [query] - 查询参数对象。
+ * @param {string|undefined} [fragment] - fragment 标识符，即 URL 中 # 后面的部分。
+ * @returns {string} - 生成的完整 URL 字符串。
+ */
+static generateURLScheme(scheme, host, path, query, fragment) {
+  // 1. 处理必须的 scheme
+  if (!scheme) {
+    console.error("Scheme is a required parameter.");
+    return '';
+  }
+  // 2. 构建基础部分：scheme 和 host
+  //    即使 host 为空，也会生成 'scheme://'，这对于 'file:///' 这类 scheme 是正确的
+  let url = `${scheme}://${host || ''}`;
+
+  // 3. 添加 path
+  if (path) {
+    if (Array.isArray(path)) {
+      let pathStr = path.join('/')
+      url += `/${pathStr.replace(/^\/+/, '')}`;
+    }else{
+      // 确保 host 和 path 之间只有一个斜杠，并处理 path 开头可能存在的斜杠
+      url += `/${path.replace(/^\/+/, '')}`;
+    }
+  }
+
+  // 4. 添加 query 参数
+  if (query && Object.keys(query).length > 0) {
+    const queryParts = [];
+    for (const key in query) {
+      // 确保我们只处理对象自身的属性
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        const value = query[key];
+        const encodedKey = encodeURIComponent(key);
+        // 对值进行编码，如果是对象，则先序列化为 JSON 字符串
+        const encodedValue = encodeURIComponent(
+          typeof value === "object" && value !== null ? JSON.stringify(value) : value
+        );
+        queryParts.push(`${encodedKey}=${encodedValue}`);
+      }
+    }
+    if (queryParts.length > 0) {
+      url += `?${queryParts.join('&')}`;
+    }
+  }
+
+  // 5. 添加 fragment
+  if (fragment) {
+    // Fragment 部分不应该被编码
+    url += `#${fragment}`;
+  }
+
+  return url;
 }
 /**
  * 解析 MarginNote 4 UIStatus URL
@@ -3366,6 +3428,14 @@ static parseTagsToTree(tags) {
     return NSFileManager.defaultManager().fileExistsAtPath(path)
   }
   /**
+   * 
+   * @param {string} path 
+   * @returns {boolean}
+   */
+  static fileExists(path) {
+    return NSFileManager.defaultManager().fileExistsAtPath(path)
+  }
+  /**
    * Generates a frame object with the specified x, y, width, and height values.
    * 
    * This method creates a frame object with the provided x, y, width, and height values.
@@ -3841,6 +3911,10 @@ static getValidJSON(jsonString,debug = false) {
     return "#ffffff"
   }
   static getImage(path,scale=2) {
+    if (!this.isfileExists(path)) {
+      console.log("getImage not exists",path)
+      return undefined
+    }
     return UIImage.imageWithDataScale(NSData.dataWithContentsOfFile(path), scale)
   }
   /**
@@ -6139,6 +6213,117 @@ static isBlankNote(note){//指有图片摘录但图片分辨率为1x1的空白�
   //   let currentLocale = NSLocale.currentLocale()
   //   return currentLocale.localeIdentifier()
   // }
+  static installAddonFromLocalFile(filePath){
+    let beginDate = Date.now()
+    let tempFolder = filePath.replace(/\.mnaddon$/,"")
+    let success = ZipArchive.unzipFileAtPathToDestination(filePath,tempFolder)
+    if (!success) {
+      return {success:false,error:"Unzip file failed!"}
+    }
+    let addonConfig = this.readJSON(tempFolder+"/mnaddon.json")
+    let addonId = addonConfig.addonid
+    let addonPath = subscriptionUtils.extensionPath+"/"+addonId
+    success = this.moveFolderToCacheFolder(addonPath)
+    if (!success) {
+      return {success:false,error:"Remove original folder failed!"}
+    }
+    success = this.moveFile(tempFolder, addonPath)
+    if (!success) {
+      return {success:false,error:"Move file failed!"}
+    }
+    let endDate = Date.now()
+    this.log("installAddonFromLocalFile.time: "+(endDate-beginDate)+"ms",{filePath:filePath,tempFolder:tempFolder,addonId:addonId,addonPath:addonPath})
+    return {success:true,addonId:addonId}
+  }
+static async processData(data,options = {}){
+try {
+
+  let targetPath = options.targetPath
+  if (!targetPath) {
+    return {success:false,error:"targetPath is required"}
+  }
+  let folder = options.folder??this.cacheFolder+"/temp_"+Date.now()
+  data.writeToFileAtomically(targetPath,false)
+  let fileType = options.fileType
+  let notebookId = options.notebookId??this.currentNotebookId
+  switch (fileType) {
+    case "mnaddon":
+          let res = this.installAddonFromLocalFile(targetPath)
+          if (res.success) {
+            this.stopHUD()
+            return {success:true}
+            // self.sideBarNotification("安装完成，请手动重启MN")
+          }else{
+            this.waitHUD(Locale.at("installFailed"))
+            subscriptionUtils.log("installAddonFromLocalFile failed",res)
+            return {success:false,error:"Install addon from local file failed!"}
+          }
+      break;
+    case "document":
+      let fileName = this.getFileName(targetPath)
+      let md5 = this.importDocument(targetPath)
+      if (this.currentNotebookId) {
+        let confirm = await this.confirm("MN Utils","Open document?\n\n是否打开该文档？\n"+fileName)
+        if (confirm) {
+          // this.copy(this.currentNotebookId)
+          this.openDoc(md5,this.currentNotebookId)
+        }
+      }
+      return {success:true}
+    case "notebook":
+      if (targetPath.endsWith(".marginpkg") || targetPath.endsWith(".marginnotes")) {
+        this.importNotebook(targetPath,folder,notebookId)
+      }
+      return {success:true}
+  }
+  return {success:false,error:"Invalid file type: "+fileType}
+  
+} catch (error) {
+  this.addErrorLog(error, "processData")
+  return {success:false,error:error}
+}
+}
+  /**
+   * id为可选,在此仅影响文件名,不影响安装插件,实际的id会从插件的mnaddon.json中读取
+   * @param {string} url 
+   * @param {string} id 
+   * @returns {Promise<{success:boolean,error:string}>}
+   */
+  static async installAddonFromURL(url,id){
+    try {
+      let fileName =  id?(id+"_"+Date.now()+".mnaddon"):("temp_"+Date.now()+".mnaddon")
+      let targetPath = this.cacheFolder+"/"+fileName
+      if (id) {
+        this.waitHUD(Locale.at("downloading")+": "+id)
+      }else{
+        this.waitHUD(Locale.at("downloading")+"...")
+      }
+      let res = await MNConnection.fetchDev(url,{
+        method: "GET",
+        headers:{
+          "Cache-Control": "no-cache"
+        }
+      })
+      if (res.ok) {
+        let data = res.body
+        let options = {
+          targetPath:targetPath,
+          fileType: "mnaddon",
+          addonId: id,
+          folder: this.cacheFolder,
+          notebookId: undefined,
+          addonURL: url,
+          fileName: fileName
+        }
+        let result = await this.processData(data,options)
+        return result
+      }
+      
+    } catch (error) {
+      this.addErrorLog(error, "installAddonFromURL")
+      return {success:false,error:error}
+    }
+  }
 }
 
 /**
@@ -7119,6 +7304,28 @@ removeFocus()`)
 }
 class MNConnection{
   static IPCache = undefined
+  static addErrorLog(error,source,info){
+    MNUtil.showHUD("Connection Error ("+source+"): "+error)
+    let tem = {source:source,time:(new Date(Date.now())).toString()}
+    if (error.detail) {
+      tem.error = {message:error.message,detail:error.detail}
+    }else{
+      tem.error = error.message
+    }
+    if (info) {
+      tem.info = info
+    }
+    MNUtil.errorLog.push(tem)
+    MNUtil.copyJSON(MNUtil.errorLog)
+    if (typeof MNUtil.log !== undefined) {
+      MNUtil.log({
+        source:"Connection",
+        message:source,
+        level:"ERROR",
+        detail:JSON.stringify(tem,null,2)
+      })
+    }
+  }
   static genURL(url) {
     return NSURL.URLWithString(url)
   }
@@ -7180,7 +7387,7 @@ class MNConnection{
    */
   static loadFileAtFolder(webview,file,folder){
     if (!MNUtil.isfileExists(folder)) {
-      MNUtil.addErrorLog(new Error("Folder not found: "+folder), "loadFileAtFolder")
+      MNConnection.addErrorLog(new Error("Folder not found: "+folder), "loadFileAtFolder")
       return
     }
     let fileURL = NSURL.fileURLWithPath(folder+"/"+file)

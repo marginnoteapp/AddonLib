@@ -2,6 +2,7 @@ const getRuntimeAddon = () => self
 
 var RuntimeAddon = JSB.defineClass("RuntimeAddon : JSExtension", {
   sceneWillConnect: async function() {
+    MNUtil.addObserverForAddonBroadcast(self, 'onAddonBroadcast:')
     Runtime.emitLifecycle("sceneWillConnect", getRuntimeAddon())
   },
   sceneDidDisconnect: function() {
@@ -23,11 +24,38 @@ var RuntimeAddon = JSB.defineClass("RuntimeAddon : JSExtension", {
   controllerWillLayoutSubviews: function(controller) {
     Runtime.emitLifecycle("controllerWillLayoutSubviews", controller, getRuntimeAddon())
   },
-  onAddonBroadcast: function(notification) {
+  /**
+   * 
+   * @param {{userInfo:{message:string},window:UIWindow,name:string}} notification
+   * @returns 
+   */
+  onAddonBroadcast: async function(notification) {
+    console.log(notification)
     let url = `marginnote4app://addon/${notification.userInfo.message}`
     let parsed = MNUtil.parseURL(url)
     let routeName = parsed.pathComponents[0]
     if (!routeName) {
+      return
+    }
+    if (routeName === "installAddon") {
+      let addURL = parsed.params.url
+      let addonId = parsed.params.id
+      let addonName = parsed.params.name??addonId
+      let addonNameString = addonName ? ("\n\n"+addonName) : ""
+      if (addURL && addURL.endsWith(".mnaddon")) {
+        let confirmed = await MNUtil.confirm("MN Utils",Locale.at("confirmInstallAddon")+addonNameString)
+        if (!confirmed) {
+          return
+        }
+        let res = await MNUtil.installAddonFromURL(addURL, addonId)
+        if (res.success) {
+          MNUtil.alert(Locale.at("installSuccess"),Locale.at("pleaseRestartMNManually"))
+        }else{
+          MNUtil.alert(Locale.at("installFailed"),res.error)
+        }
+      }else{
+        MNUtil.alert(Locale.at("installFailed"),Locale.at("invalidURL"))
+      }
       return
     }
     if (routeName in Runtime.routeHandlers) {

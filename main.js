@@ -1,19 +1,26 @@
+console.log("AddonLib")
 var __mnRuntimeModules = globalThis.__mnRuntimeModules
 if (!__mnRuntimeModules) {
   __mnRuntimeModules = {}
   globalThis.__mnRuntimeModules = __mnRuntimeModules
 }
-
+//用全局变量MNOnAlert指示UIAlertView创建的弹窗是否已经弹出，避免重复弹窗
+if (typeof MNOnAlert === 'undefined') {
+  var MNOnAlert = false
+}
 if (!__mnRuntimeModules.runtime) {
   JSB.require("runtime")
+  console.log("Runtime")
   __mnRuntimeModules.runtime = true
 }
 if (!__mnRuntimeModules.mnutils) {
   JSB.require("mnutils")
+  console.log("mnutils")
   __mnRuntimeModules.mnutils = true
 }
 if (!__mnRuntimeModules.mnnote) {
   JSB.require("mnnote")
+  console.log("mnnote")
   __mnRuntimeModules.mnnote = true
 }
 if (!__mnRuntimeModules.cryptojs) {

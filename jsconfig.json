@@ -2,5 +2,5 @@
   "compilerOptions": {
     "lib": ["es2015"]
   },
-  "include": ["index.d.ts","utils.js","mnutils.js","mnnote.js"]
+  "include": ["main.js","index.d.ts","utils.js","mnutils.js","mnnote.js","runtime.js","addon.js"]
 }

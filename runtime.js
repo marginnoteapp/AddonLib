@@ -1,3 +1,7 @@
+/**
+ * 似乎用处不大,每个插件都有一个单独的路径
+ * 
+ */
 class RuntimeAssets {
   static init(extensionPath) {
     this.extensionPath = extensionPath
