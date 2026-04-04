@@ -1,5 +1,18 @@
 class MNNote{
   static noteCache = {}
+  /**
+   * 
+   * @param {string} message 
+   * @param {any} detail 
+   * @param {["INFO","ERROR","WARNING","DEBUG"]} level 
+   */
+  static log(message,detail,level = "INFO"){
+    if (typeof MNLog !== "undefined") {
+      MNLog.log({message:message,detail:detail,source:"MNNote",level:level})
+      return
+    }
+    MNUtil.log({message:message,detail:detail,source:"MNNote",level:level})
+  }
   /** @type {MbBookNote} */
   note
   /**
@@ -1519,7 +1532,7 @@ try {
     }
     
   } catch (error) {
-    MNUtil.addErrorLog(error, "MNNote.insertChildBefore")
+    MNNote.addErrorLog(error, "MNNote.insertChildBefore")
     return this
   }
   }
@@ -1572,7 +1585,7 @@ try {
     }
     
   } catch (error) {
-    MNUtil.addErrorLog(error, "MNNote.insertChildAfter")
+    MNNote.addErrorLog(error, "MNNote.insertChildAfter")
     return this
   }
   }
@@ -2736,6 +2749,13 @@ try {
     }
     MNUtil.errorLog.push(tem)
     MNUtil.copy(MNUtil.errorLog)
+    if (typeof MNUtil.log !== 'undefined') {
+      this.log({
+        level:"error",
+        message:source,
+        detail:tem,
+      })
+    }
   }
   /**
    *
@@ -2985,6 +3005,39 @@ try {
   }
   static getSelectedNotes(){
     return this.getFocusNotes()
+  }
+  /**
+   * 
+   * @param {MNNote} note 
+   * @returns {number[]}
+   */
+  static getNoteRelatedPageNos(note){
+  try {
+    if (!note) {
+      return []
+    }
+    let notes = note.notes
+    let pageNos = []
+    for (let i = 0; i < notes.length; i++) {
+      const note = notes[i];
+      let startPage = note.note.startPage
+      let endPage = note.note.endPage
+      if (startPage !== undefined) {
+        pageNos.push(startPage)
+      }
+      if (endPage !== undefined && endPage > startPage) {
+        for (let j = startPage + 1; j < endPage; j++) {
+          pageNos.push(j)
+        }
+      }
+    }
+    let uniquePageNos = Array.from(new Set(pageNos))
+    return uniquePageNos
+    
+  } catch (error) {
+    this.addErrorLog(error, "getNoteRelatedPageNos")
+    return []
+  }
   }
 /**
  * 
@@ -3312,6 +3365,8 @@ try {
       if (note.excerptTextMarkdown) {
         if (MNUtil.hasMNImages(text.trim())) {
           imageDatas.push(MNUtil.getMNImageFromMarkdown(text))
+        }else{
+          this.log("No images found in excerptTextMarkdown")
         }
       }
     }
@@ -3610,7 +3665,7 @@ class MNComment {
       }
     }
       } catch (error) {
-      MNUtil.addErrorLog(error, "replaceLink")
+      MNComment.addErrorLog(error, "replaceLink")
     }
   }
   hasBackLink(){
@@ -3649,7 +3704,7 @@ class MNComment {
       }
     }
   } catch (error) {
-    MNUtil.showHUD(error)
+    MNComment.addErrorLog(error, "addBackLink")
   }
   }
   /**
@@ -3798,11 +3853,46 @@ class MNComment {
 
       return newComment
     } catch (error) {
-      MNUtil.showHUD(error)
+      this.addErrorLog(error, "new")
       return undefined
     }
   }
-  
+  /**
+   * 
+   * @param {string} message 
+   * @param {any} detail 
+   * @param {["INFO","ERROR","WARNING","DEBUG"]} level 
+   */
+  static log(message,detail,level = "INFO"){
+    if (typeof MNLog !== "undefined") {
+      MNLog.log({message:message,detail:detail,source:"MNComment",level:level})
+      return
+    }
+    MNUtil.log({message:message,detail:detail,source:"MNComment",level:level})
+  }
+  static addErrorLog(error,source,info,showHUD = true){
+    if (showHUD) {
+      MNUtil.showHUD("MNComment Error ("+source+"): "+error)
+    }
+    let tem = {source:source,time:(new Date(Date.now())).toString()}
+    if (error.detail) {
+      tem.error = {message:error.message,detail:error.detail}
+    }else{
+      tem.error = error.message
+    }
+    if (info) {
+      tem.info = info
+    }
+    MNUtil.errorLog.push(tem)
+    MNUtil.copy(MNUtil.errorLog)
+    if (typeof MNUtil.log !== 'undefined') {
+      this.log({
+        level:"error",
+        message:source,
+        detail:tem,
+      })
+    }
+  }
 }
 
 class MNDocument{
@@ -3820,6 +3910,42 @@ class MNDocument{
     }
   }
   static cachedDocuments = {}
+  /**
+   * 
+   * @param {string} message 
+   * @param {any} detail 
+   * @param {["INFO","ERROR","WARNING","DEBUG"]} level 
+   */
+  static log(message,detail,level = "INFO"){
+    if (typeof MNLog !== "undefined") {
+      MNLog.log({message:message,detail:detail,source:"MNNote",level:level})
+      return
+    }
+    MNUtil.log({message:message,detail:detail,source:"MNDocument",level:level})
+  }
+  static addErrorLog(error,source,info,showHUD = true){
+    if (showHUD) {
+      MNUtil.showHUD("MNDocument Error ("+source+"): "+error)
+    }
+    let tem = {source:source,time:(new Date(Date.now())).toString()}
+    if (error.detail) {
+      tem.error = {message:error.message,detail:error.detail}
+    }else{
+      tem.error = error.message
+    }
+    if (info) {
+      tem.info = info
+    }
+    MNUtil.errorLog.push(tem)
+    MNUtil.copy(MNUtil.errorLog)
+    if (typeof MNUtil.log !== 'undefined') {
+      this.log({
+        level:"error",
+        message:source,
+        detail:tem,
+      })
+    }
+  }
   /**
    * 
    * @param {MbBook|string} document 
@@ -4140,7 +4266,7 @@ class MNDocument{
     let data = MNUtil.dataFromBase64(newBase64,"pdf")
     return data
   } catch (error) {
-    MNUtil.addErrorLog(error,"extractPDFPage")
+    this.addErrorLog(error,"extractPDFPage")
     return undefined
   }
   }

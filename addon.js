@@ -30,9 +30,9 @@ var RuntimeAddon = JSB.defineClass("RuntimeAddon : JSExtension", {
    * @returns 
    */
   onAddonBroadcast: async function(notification) {
-    console.log(notification)
     let url = `marginnote4app://addon/${notification.userInfo.message}`
     let parsed = MNUtil.parseURL(url)
+    // console.log(parsed)
     let routeName = parsed.pathComponents[0]
     if (!routeName) {
       return
