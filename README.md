@@ -55,10 +55,31 @@ MarginNote对象封装入口。
 let note = MNNote.new("note-id")
 ```
 
+### Minimal Add-on Flow
+
+以下示例组合了生命周期注册、MarginNote对象封装和fetch风格网络请求：
+
+```js
+Runtime.registerLifecycle({
+  sceneWillConnect() {
+    Runtime.registerRoute("send-current-note", async () => {
+      const note = MNNote.new("current")
+      if (!note) return
+
+      const response = await MNConnection.fetchDev("https://example.com/api/notes", {
+        method: "POST",
+        json: { noteId: note.noteId }
+      })
+      if (response?.ok) MNUtil.showHUD("Current note sent")
+    })
+  }
+})
+```
+
 ## License Statement
 
 本项目相关代码已获得授权，并以MIT License发布。
 
 任何人可以在遵守MIT协议的前提下自由使用、修改、分发和复用本仓库中的代码。
 
-具体许可条款请见[LICENSE](/Users/shenshichao/Downloads/mnutils_v0_2_2_alpha0228/LICENSE)。
+具体许可条款请见[LICENSE](LICENSE)。
