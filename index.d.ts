@@ -199,7 +199,7 @@ declare global {
     copyItemAtPathToPath(path: string, toPath: string): boolean;
     createDirectoryAtPathAttributes(path: string, attributes: NSDictionary): boolean;
     createDirectoryAtPathWithIntermediateDirectoriesAttributes(path: string, createIntermediates: boolean, attributes: NSDictionary): boolean;
-  };
+  }
 }
 
 declare const enum NSJSONWritingOptions {
@@ -304,7 +304,7 @@ declare global {
      * @returns NSString*
      */
     localeIdentifier(): string;
-  };
+  }
 }
 declare const enum NSLocaleLanguageDirection {
   BottomToTop = 4,
@@ -333,7 +333,7 @@ declare global {
      * @param userInfo NSDictionary*
      */
     initWithNameObjectUserInfo(name: string, object: any, userInfo: DictObj): NSNotification;
-  };
+  }
   class NSNotificationCenter {
     static defaultCenter(): NSNotificationCenter;
     init(): NSNotificationCenter;
@@ -360,7 +360,7 @@ declare global {
      * @param name NSString*
      */
     removeObserverName(observer: any, name: string): void;
-    };
+  }
 }
 
 declare const enum NSURLBookmarkResolutionOptions {
@@ -656,7 +656,7 @@ declare global {
     invalidate(): void;
     isValid(): boolean;
     userInfo(): any;
-  };
+  }
   class NSURLConnection {
     static sendAsynchronousRequestQueueCompletionHandler(request: NSURLRequest, queue: NSOperationQueue, completionHandler: JSValue): NSURLRequest;
     static connectionWithRequest(request: NSURLRequest, delegate: any): NSURLConnection;
@@ -675,7 +675,7 @@ declare global {
     static requestWithURL(url: NSURL): NSURLRequest;
     URL(): NSURL;
     setURL(url: NSURL): void;
-  };
+  }
   type NSURLResponse = {
     statusCode(): number;
     expectedContentLength(): number;
@@ -695,8 +695,8 @@ declare global {
      * double
      * */
     setTimeoutInterval(seconds: number): void;
-  };
-  declare type NSError = {
+  }
+  type NSError = {
     domain: string;
     code: number;
     userInfo: NSDictionary;
@@ -705,15 +705,14 @@ declare global {
     localizedRecoverySuggestion: string;
     localizedRecoveryOptions: NSDictionary;
   };
-  declare type NSHTTPURLResponse = {
+  type NSHTTPURLResponse = {
     statusCode: number;
     allHeaderFields: NSDictionary;
   };
-  declare type NSURLConnection = {};
   const NSOperationQueue: {
     mainQueue(): NSOperationQueue;
   };
-  declare type NSOperationQueue = {};
+  type NSOperationQueue = {};
 }
 
 declare const enum UIAlertViewStyle {
@@ -753,7 +752,7 @@ declare global {
     textFieldAtIndex(textFieldIndex: number): UITextField;
     show(): void;
     dismissWithClickedButtonIndexAnimated(buttonIndex:number,animated:boolean):void;
-  };
+  }
   class UIApplication {
     static sharedApplication(): UIApplication;
     networkActivityIndicatorVisible: boolean;
@@ -763,7 +762,7 @@ declare global {
     cancelLocalNotification(notification: UILocalNotification): void;
     scheduleLocalNotification(notification: UILocalNotification): void;
 
-  };
+  }
 }
 
 declare const enum UIButtonType {
@@ -886,7 +885,7 @@ declare global {
     static purpleColor(): UIColor;
     static brownColor(): UIColor;
     static clearColor(): UIColor;
-  };
+  }
   class UIFont {
     /**
      *  默认 17
@@ -903,7 +902,7 @@ declare global {
     static familyNames(): string[];
     static fontNamesForFamilyName(familyName: string): string[];
 
-  };
+  }
   class UIImage {
     /**
      * @returns UIImage*
@@ -1070,7 +1069,7 @@ declare global {
     presentPopoverFromBarButtonItem(item: UIBarButtonItem, permittedArrowDirections: number, animated: boolean): void;
     setContentViewControllerAnimated(viewController: UIViewController, animated: boolean): void;
   }
-  declare class UIKeyCommand {
+  class UIKeyCommand {
     undoManager: NSUndoManager;
     keyCommands: NSArray<UIKeyCommand>;
     modifierFlags: UIKeyModifierFlags;
@@ -1080,7 +1079,7 @@ declare global {
     textInputContextIdentifier: string;
     static keyCommandWithInputModifierFlagsAction(input:string,modifierFlags: UIKeyModifierFlags, action: string): UIKeyCommand;
   }
-  declare class UIResponder {
+  class UIResponder {
     nextResponder: UIResponder;
     undoManager: NSUndoManager;
     keyCommands: NSArray<UIKeyCommand>;
@@ -1837,7 +1836,7 @@ declare global {
    * Note comments
    * @see {@link MbBookNote.comments}
    */
-  declare type NoteComment = TextComment | HtmlComment | LinkComment | PaintComment | AudioComment;
+  type NoteComment = TextComment | HtmlComment | LinkComment | PaintComment | AudioComment;
   /**
    * Basic Comment, just text you typed
    * @see {@link NoteComment}
@@ -1905,7 +1904,7 @@ declare global {
    * The notes merged into is the LinkComment
    * @see {@link NoteComment}
    */
-  declare type LinkComment = LinkCommentText | LinkCommentPic;
+  type LinkComment = LinkCommentText | LinkCommentPic;
   /**
    * @see {@link LinkComment}
    */
@@ -3230,7 +3229,7 @@ declare global {
      * @param {boolean} noEmpty
      * @returns {T[]}
      */
-    static unique(arr: T[], noEmpty?: boolean): T[];
+    static unique<T>(arr: T[], noEmpty?: boolean): T[];
     static typeOf(note: undefined | string | MNNote | MbBookNote | object): "undefined" | "string" | "NoteURL" | "number" | "MNNote" | "NSData" | "UIImage" | "MbBookNote" | "NoteConfig" | "object";
     static getNoteId(note: undefined | MbBookNote | string): string | undefined;
     static getDocImage(checkImageFromNote?: boolean, checkDocMapSplitMode?: boolean): NSData | undefined;
@@ -3250,21 +3249,21 @@ declare global {
     static tableItem(title: string, object: any, selector: string, params?: object, checked?: boolean): object;
     static deepEqual(a: object, b: object): boolean;
     static moveElement(arr: string[], element: string, direction: "up" | "down" | "top" | "bottom"): string[];
-    static async input(title: string, subTitle: string, items: string[]): Promise<{ input: string, button: number }>
-    static async runJavaScript(webview: UIWebView, script: string): Promise<any>
-    static async confirm(mainTitle: string, subTitle: string): Promise<boolean>;
-    static async userSelect(mainTitle: string, subTitle: string, items: string[]): Promise<number>;
-    static async importPDFFromFile(): Promise<string>
-    static async importPDFFromFileAndOpen(): Promise<string>
-    static async animate(func: Function, time?: number): Promise<any>;
-    static async delay(seconds: number): Promise<void>;
-    static async readTextFromUrlAsync(url: string): Promise<string>;
+    static input(title: string, subTitle: string, items: string[]): Promise<{ input: string, button: number }>
+    static runJavaScript(webview: UIWebView, script: string): Promise<any>
+    static confirm(mainTitle: string, subTitle: string): Promise<boolean>;
+    static userSelect(mainTitle: string, subTitle: string, items: string[]): Promise<number>;
+    static importPDFFromFile(): Promise<string>
+    static importPDFFromFileAndOpen(): Promise<string>
+    static animate(func: Function, time?: number): Promise<any>;
+    static delay(seconds: number): Promise<void>;
+    static readTextFromUrlAsync(url: string): Promise<string>;
     /**
      *
      * @param {string[]} UTI
      * @returns {Promise<string>} file path
      */
-    static async importFile(UTI: string | string[]): Promise<string>;
+    static importFile(UTI: string | string[]): Promise<string>;
   }
   class MNConnection {
     static genURL(url: string): NSURL;
@@ -3278,7 +3277,7 @@ declare global {
      * @param {UIWebView} webview - The web view into which the URL should be loaded.
      * @param {string} url - The URL to be loaded into the web view.
      */
-    static loadRequest(webview: UIWebView, url: path): void;
+    static loadRequest(webview: UIWebView, url: string): void;
     /**
      * 
      * @param {UIWebView} webview 
@@ -3320,7 +3319,7 @@ declare global {
      * @param {NSMutableURLRequest} request - The HTTP request to be sent.
      * @returns {Promise<Object>} A promise that resolves with the response data or an error object.
      */
-    static async sendRequest(request: NSURLRequest | NSMutableURLRequest): Promise<Object | NSData>;
+    static sendRequest(request: NSURLRequest | NSMutableURLRequest): Promise<Object | NSData>;
     /**
      * Fetches data from a specified URL with optional request options.
      * 
@@ -3338,7 +3337,7 @@ declare global {
      * @param {Object} [options.json] - JSON data to include in the request body.
      * @returns {Promise<Object|Error>} A promise that resolves with the response data or an error object.
      */
-    static async fetch(url: string, options?: {}): Promise<Object | Error>;
+    static fetch(url: string, options?: {}): Promise<Object | Error>;
     /**
      * Encodes a string to Base64.
      * 
@@ -3360,7 +3359,7 @@ declare global {
      * @param {string} password - The password for authentication.
      * @returns {Promise<Object>} A promise that resolves with the response data or an error object.
      */
-    static async readWebDAVFile(url: string, username: string, password: string): Promise<any>
+    static readWebDAVFile(url: string, username: string, password: string): Promise<any>
     /**
      * Uploads a file to a WebDAV server using the provided URL, username, password, and file content.
      * 
@@ -3374,7 +3373,7 @@ declare global {
      * @param {string} fileContent - The content of the file to be uploaded.
      * @returns {Promise<Object>} A promise that resolves with the response data or an error object.
      */
-    static async uploadWebDAVFile(url: string, username: string, password: string): Promise<any>
+    static uploadWebDAVFile(url: string, username: string, password: string): Promise<any>
     /**
      * Reads a file from a WebDAV server using the provided URL, username, and password.
      * 
@@ -3396,42 +3395,42 @@ declare global {
     static getOnlineImage(url: string, scale?: number): NSData
   }
   class MNButton {
-    set superview(value: UIView): void;
+    set superview(value: UIView);
     get superview(): UIView;
-    set frame(value: CGRect): void;
+    set frame(value: CGRect);
     get frame(): CGRect;
-    set bounds(value: CGRect): void;
+    set bounds(value: CGRect);
     get bounds(): CGRect;
-    set center(value: CGPoint): void;
+    set center(value: CGPoint);
     get center(): CGPoint;
     // set window(value: UIWindow): void;
     get window(): UIWindow | undefined;
     // set gestureRecognizers(value: NSArray<UIGestureRecognizer> | UIGestureRecognizer[]): void;
     get gestureRecognizers(): NSArray<UIGestureRecognizer> | UIGestureRecognizer[] | undefined;
-    set backgroundColor(value: UIColor): void;
+    set backgroundColor(value: UIColor);
     get backgroundColor(): UIColor;
-    set color(value: UIColor|string): void;
+    set color(value: UIColor|string);
     get color(): UIColor;
-    set hidden(value: boolean): void;
+    set hidden(value: boolean);
     get hidden(): boolean;
-    set autoresizingMask(value: number): void;
+    set autoresizingMask(value: number);
     get autoresizingMask(): number;
-    set opacity(value: number): void;
+    set opacity(value: number);
     get opacity(): number;
-    set radius(value: number): void;
+    set radius(value: number);
     get radius(): number;
-    set cornerRadius(value: number): void;
+    set cornerRadius(value: number);
     get cornerRadius(): number;
-    set currentTitle(value: string): void;
+    set currentTitle(value: string);
     get currentTitle(): string;
-    set title(value: string): void;
+    set title(value: string);
     get title(): string;
-    set currentTitleColor(value: UIColor): void;
+    set currentTitleColor(value: UIColor);
     get currentTitleColor(): UIColor;
-    set currentImage(value: UIImage): void;
+    set currentImage(value: UIImage);
     get currentImage(): UIImage;
     get subviews(): NSArray<UIView> | UIView[];
-    set masksToBounds(value: boolean): void;
+    set masksToBounds(value: boolean);
     get masksToBounds(): boolean;
     setFrame(x: number, y: number, width: number, height: number): void;
     setColor(hexColor: string, alpha?: number): void;
@@ -3847,23 +3846,21 @@ declare global {
      *
      * @param {number} [delay=0]
      */
-    async focusInMindMap(delay?: number): Promise<MNNote>;
+    focusInMindMap(delay?: number): Promise<MNNote>;
     /**
      *
      * @param {number} [delay=0]
      */
-    async focusInDocument(delay?: number): Promise<MNNote>;
+    focusInDocument(delay?: number): Promise<MNNote>;
     /**
      *
      * @param {number} [delay=0]
      */
-    async focusInFloatMindMap(delay?: number): Promise<MNNote>;
-    async getMDContent(withBase64 = false): Promise<string>;
+    focusInFloatMindMap(delay?: number): Promise<MNNote>;
+    getMDContent(withBase64?: boolean): Promise<string>;
   }
   class MNComment {
-    constructor(comment:NoteComment) {
-      
-    }
+    constructor(comment: NoteComment);
     type:string
     detail:NoteComment
     index:number
@@ -3887,7 +3884,7 @@ declare global {
     static subviews: object
     static get currentWindow():UIWindow
     static get subviewNames():string[]
-    static get app():Application
+    static get app():ApplicationInstance
     static get studyController():StudyController
     static get controller():UIViewController
     static get view():UIView
@@ -3903,5 +3900,15 @@ declare global {
     static removeSubview(name:string):void
   }
 }
+
+declare type NSArray<T = any> = T[];
+declare type NSUndoManager = any;
+declare type UIBarButtonItem = any;
+declare type UIKeyModifierFlags = any;
+declare type UIFontTextStyle = string;
+declare type UIScreen = any;
+declare type TimeZone = any;
+declare type NSValue = any;
+declare type ExtensionPanelController = any;
 
 export { MNUtil, MNNote, MNButton, MNConnection, MNComment, Application, CALayer, CGBlendMode, CGFloat, CGPoint, CGRect, CGSize, DictObj, DocMapSplitMode, DocumentController, ExcerptPic, GroupMode, HtmlComment, JSExtension, JSExtensionLifeCycle, JSValue, LinkComment, LinkCommentPic, LinkCommentText, MNPic, MbBook, MbBookNote, MbModelTool, MbTopic, MindMapNode, MindMapView, NSCharacterSet, NSData, NSDataReadingOptions, NSDataSearchOptions, NSDataWritingOptions, NSDictionary, NSError, NSFileManager, NSHTTPURLResponse, NSIndexPath, NSIndexSet, NSJSONReadingOptions, NSJSONSerialization, NSJSONWritingOptions, NSLineBreakMode, NSLocale, NSLocaleLanguageDirection, NSMutableArray, NSMutableURLRequest, NSNotification, NSNotificationCenter, NSNull, NSOperationQueue, NSRange, NSStringEncoding, NSTextAlignment, NSTimeInterval, NSTimer, NSURL, NSURLBookmarkCreationOptions, NSURLBookmarkFileCreationOptions, NSURLBookmarkResolutionOptions, NSURLConnection, NSURLRequest, NSURLResponse, NSUserDefaults, NSValue, NoteComment, NotebookController, NotebookType, OSType, OutlineView, PaintComment, ReaderController, SQLiteDatabase, SQLiteResultSet, SpeechManager, StudyController, StudyMode, TextComment, UIAlertView, UIAlertViewStyle, UIApplication, UIButtonType, UIColor, UIControl, UIControlEvents, UIControlState, UIDevice, UIEdgeInsets, UIEvent, UIFont, UIGestureRecognizerState, UIImage, UIImageOrientation, UIImageView, UILocalNotification, UIPasteboard, UIResponder, UIScrollView, UISwipeGestureRecognizerDirection, UITableView, UITableViewCell, UITableViewCellAccessoryTypeStyle, UITableViewCellSelectionStyle, UITableViewCellSeparatorStyle, UITableViewCellStyle, UITableViewController, UITableViewRowAnimation, UITableViewScrollPosition, UITableViewStyle, UITextBorderStyle, UITouch, UIViewAutoresizing, UIViewController, UIWindow, UndoManager, ZipArchive };
